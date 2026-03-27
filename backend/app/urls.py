@@ -1,7 +1,9 @@
 from django.urls import path
 
-from . import views
+from .views import BookDetailView, index, BookListView
 
 urlpatterns = [
-    path('', views.index, name='index'),
+    path('', index, name='index'),
+    path('book/<uuid:pk>/', BookDetailView.as_view(), name='book-detail'),
+    path('catalog', BookListView.as_view(), name='catalog'),  # список всех книг
 ]

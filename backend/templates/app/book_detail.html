@@ -1,0 +1,16 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>{{ book.name }}</title>
+    <link rel="stylesheet" href="{% static 'app/style.css' %}">
+</head>
+<body>
+    <h1>{{ book.name }}</h1>
+    <p>{{ book.details }}</p>
+
+    <!-- <p><a href="{% url 'index' %}">Back to book list</a></p> -->
+    <p><a href="{% url 'catalog' %}">Back to book list</a></p>
+</body>
+</html>
