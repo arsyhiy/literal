@@ -1,16 +1,30 @@
+<!doctype html>
 {% load static %}
-<!DOCTYPE html>
 <html>
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <title>{{ book.name }}</title>
-    <link rel="stylesheet" href="{% static 'app/style.css' %}">
-</head>
-<body>
+    <link rel="stylesheet" href="{% static 'app/style.css' %}" />
+  </head>
+  <body>
+    <div class="header">
+      <a href="{% url 'index' %}" class="btn">home</a>
+      <a href="{% url 'catalog' %}" class="btn">Go to Book List</a>
+
+      {% if user.is_authenticated %}
+        <form method="post" action="{% url 'logout' %}" style="display:inline;">
+          {% csrf_token %}
+          <button type="submit" class="btn">Logout</button>
+        </form>
+      {% else %}
+        <a href="{% url 'login' %}" class="btn">Login</a>
+      {% endif %}
+    </div>
+
     <h1>{{ book.name }}</h1>
     <p>{{ book.details }}</p>
 
     <!-- <p><a href="{% url 'index' %}">Back to book list</a></p> -->
     <p><a href="{% url 'catalog' %}">Back to book list</a></p>
-</body>
+  </body>
 </html>

@@ -1,16 +1,23 @@
-{% extends "base.html" %}
+<!doctype html>
+{% load static %}
+<html>
+  <head>
+    <title>index</title>
+    <link rel="stylesheet" href="{% static 'app/style.css' %}" />
+  </head>
+  <body>
+    <div class="header">
+      <a href="{% url 'index' %}" class="btn">home</a>
+      <a href="{% url 'catalog' %}" class="btn">Go to Book List</a>
 
-{% block title %}Home{% endblock %}
-
-{% block content %}
-<h1>Welcome to the site</h1>
-
-<a href="{% url 'catalog' %}" style="
-    display: inline-block;
-    padding: 8px 16px;
-    background-color: #4CAF50;
-    color: white;
-    text-decoration: none;
-    border-radius: 4px;
-">Go to Book List</a>
-{% endblock %};
+      {% if user.is_authenticated %}
+        <form method="post" action="{% url 'logout' %}" style="display:inline;">
+          {% csrf_token %}
+          <button type="submit" class="btn">Logout</button>
+        </form>
+      {% else %}
+        <a href="{% url 'login' %}" class="btn">Login</a>
+      {% endif %}
+    </div>
+  </body>
+</html>

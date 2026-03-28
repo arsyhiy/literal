@@ -122,3 +122,8 @@ STATICFILES_DIRS = [
 ]
 
 STATIC_URL = '/static/'
+
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
+
+LOGOUT_REDIRECT_URL = '/accounts/logged_out/'  # путь должен существовать

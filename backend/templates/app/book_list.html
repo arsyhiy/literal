@@ -1,7 +1,36 @@
-{% extends "base.html" %}
+<!doctype html>
+{% load static %}
+<html>
+  <head>
+    <title>Books</title>
+    <link rel="stylesheet" href="{% static 'app/style.css' %}" />
+  </head>
+  <body>
+    <div class="header">
+      <a href="{% url 'index' %}" class="btn">home</a>
+      <a href="{% url 'catalog' %}" class="btn">Go to Book List</a>
 
-{% block content %}
+      {% if user.is_authenticated %}
+        <form method="post" action="{% url 'logout' %}" style="display:inline;">
+          {% csrf_token %}
+          <button type="submit" class="btn">Logout</button>
+        </form>
+      {% else %}
+        <a href="{% url 'login' %}" class="btn">Login</a>
+      {% endif %}
+    </div>
 
-    {% include "components/book_catalog.html" %}
+    <h1>Books</h1>
 
-{% endblock %}
+    {% for book in books %}
+    <div>
+      <h2>
+        <a href="{% url 'book-detail' book.id %}">{{ book.name }}</a>
+      </h2>
+      <p>{{ book.details }}</p>
+    </div>
+    {% empty %}
+    <p>No books found</p>
+    {% endfor %}
+  </body>
+</html>
