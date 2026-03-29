@@ -25,6 +25,7 @@ def checkout(request):
     if request.method == 'POST':
         data = json.loads(request.body)
         cart = data.get('cart', {})
+        payment_method = data.get('payment_method', 'unknown')
         total = 0
         order_items = []
 
@@ -35,9 +36,19 @@ def checkout(request):
                 total += book.price * quantity
                 order_items.append({'title': book.title, 'quantity': quantity, 'price': book.price})
             except Book.DoesNotExist:
+                print(f"Book {book_id} not found")
                 continue
 
-        # Здесь можно создать Order/OrderItem в базе, если нужно
+        # --- STUB: печатаем заказ и метод оплаты ---
+        print("=== New Order ===")
+        print(f"Payment method: {payment_method}")
+        print("Items:")
+        for it in order_items:
+            print(f"- {it['title']} x {it['quantity']} = ${it['price']*it['quantity']}")
+        print(f"Total: ${total:.2f}")
+        print("================")
+
+        # Возвращаем подтверждение клиенту
         return JsonResponse({'status': 'ok', 'total': total, 'items': order_items})
 
     return JsonResponse({'status': 'error'}, status=400)
