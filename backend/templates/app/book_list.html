@@ -25,12 +25,87 @@
     {% for book in books %}
     <div>
       <h2>
-        <a href="{% url 'book-detail' book.id %}">{{ book.name }}</a>
+        <a href="{% url 'book-detail' book.pk %}">{{ book.title }}</a>
       </h2>
-      <p>{{ book.details }}</p>
     </div>
     {% empty %}
     <p>No books found</p>
     {% endfor %}
+
+
+
+<h2>Cart</h2>
+<div id="cart-container"></div>
+<button onclick="checkout()">Checkout</button>
+
+<script>
+// --- Корзина на стороне клиента ---
+function getCart() {
+    return JSON.parse(localStorage.getItem('cart') || '{}');
+}
+
+function saveCart(cart) {
+    localStorage.setItem('cart', JSON.stringify(cart));
+    renderCart();
+}
+
+function addToCart(bookId, title, price) {
+    let cart = getCart();
+    if(cart[bookId]) {
+        cart[bookId].quantity += 1;
+    } else {
+        cart[bookId] = {title: title, price: price, quantity: 1};
+    }
+    saveCart(cart);
+}
+
+function removeFromCart(bookId) {
+    let cart = getCart();
+    delete cart[bookId];
+    saveCart(cart);
+}
+
+function renderCart() {
+    const cart = getCart();
+    const container = document.getElementById('cart-container');
+    container.innerHTML = '';
+    for (let bookId in cart) {
+        const item = cart[bookId];
+        container.innerHTML += `
+            <div>
+                ${item.title} x ${item.quantity} — $${(item.price * item.quantity).toFixed(2)}
+                <button onclick="removeFromCart('${bookId}')">Remove</button>
+            </div>`;
+    }
+}
+
+// --- Отправка корзины на сервер ---
+function checkout() {
+    const cart = getCart();
+    if(Object.keys(cart).length === 0) {
+        alert('Cart is empty');
+        return;
+    }
+
+    fetch('/checkout/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({cart})
+    }).then(res => res.json())
+      .then(data => {
+          if(data.status === 'ok') {
+              alert('Order received!');
+              localStorage.removeItem('cart');
+              renderCart();
+          }
+      });
+}
+
+// --- Рендер корзины при загрузке страницы ---
+renderCart();
+</script>
   </body>
 </html>

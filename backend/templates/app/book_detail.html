@@ -21,10 +21,69 @@
       {% endif %}
     </div>
 
-    <h1>{{ book.name }}</h1>
+    <h1>{{ book.title }}</h1>
+    <h2>{{ book.author }}</h2>
+    <img src="{{ book.image.url }}" alt="{{ book.title }}">
     <p>{{ book.details }}</p>
+    <h3>{{ book.price }}</h3>
 
     <!-- <p><a href="{% url 'index' %}">Back to book list</a></p> -->
     <p><a href="{% url 'catalog' %}">Back to book list</a></p>
+
+
+<!-- Кнопка добавления в корзину -->
+  <button onclick="addToCart('{{ book.pk }}', '{{ book.title }}', {{ book.price }})">
+    Add to Cart
+  </button>
+
+  <!-- Отображение текущей корзины -->
+  <h2>Cart</h2>
+  <div id="cart-container"></div>
+
+<script>
+  // --- Корзина на стороне клиента ---
+  function getCart() {
+      return JSON.parse(localStorage.getItem('cart') || '{}');
+  }
+
+  function saveCart(cart) {
+      localStorage.setItem('cart', JSON.stringify(cart));
+      renderCart();
+  }
+
+  function addToCart(bookId, title, price) {
+      let cart = getCart();
+      if(cart[bookId]) {
+          cart[bookId].quantity += 1;
+      } else {
+          cart[bookId] = {title: title, price: price, quantity: 1};
+      }
+      saveCart(cart);
+      alert(`${title} added to cart`);
+  }
+
+  function removeFromCart(bookId) {
+      let cart = getCart();
+      delete cart[bookId];
+      saveCart(cart);
+  }
+
+  function renderCart() {
+      const cart = getCart();
+      const container = document.getElementById('cart-container');
+      container.innerHTML = '';
+      for (let bookId in cart) {
+          const item = cart[bookId];
+          container.innerHTML += `
+              <div>
+                  ${item.title} x ${item.quantity} — $${(item.price * item.quantity).toFixed(2)}
+                  <button onclick="removeFromCart('${bookId}')">Remove</button>
+              </div>`;
+      }
+  }
+
+  // --- Отображаем корзину при загрузке страницы ---
+  renderCart();
+</script>
   </body>
 </html>

@@ -1,7 +1,10 @@
 from django.urls import path, include
 
-from .views import BookDetailView, index, BookListView
+from .views import BookDetailView, index, BookListView, checkout
 from django.views.generic import TemplateView, RedirectView
+from django.conf import settings
+from django.conf.urls.static import static
+
 
 urlpatterns = [
     path('', RedirectView.as_view(url='/index/', permanent=False)),
@@ -11,5 +14,8 @@ urlpatterns = [
     path('catalog/', BookListView.as_view(), name='catalog'),  # список всех книг
     path('accounts/', include('django.contrib.auth.urls')),
     path('accounts/logged_out/', TemplateView.as_view(template_name='registration/logged_out.html'), name='logged_out'),
-
+    
+    path('checkout/', checkout, name='checkout'),
 ]
+
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
