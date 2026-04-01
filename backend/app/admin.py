@@ -1,7 +1,29 @@
 from django.contrib import admin
+from .models import Category, Product, Book, BoardGame
 
-from .models import Book, author
 
-admin.site.register(Book)
+@admin.register(Category)
+class CategoryAdmin(admin.ModelAdmin):
+    list_display = ("name", "parent")
+    search_fields = ("name",)
 
-admin.site.register(author)
+
+@admin.register(Product)
+class ProductAdmin(admin.ModelAdmin):
+    list_display = ("name", "category", "price")
+    search_fields = ("name",)
+    list_filter = ("category",)
+
+
+@admin.register(Book)
+class BookAdmin(admin.ModelAdmin):
+    list_display = ("name", "author", "numberOfPages", "category", "price")
+    search_fields = ("name", "author")
+    list_filter = ("category",)
+
+
+@admin.register(BoardGame)
+class BoardGameAdmin(admin.ModelAdmin):
+    list_display = ("name", "players", "timeOfPlaying", "category", "price")
+    search_fields = ("name",)
+    list_filter = ("category",)
