@@ -1,28 +1,73 @@
 from django.shortcuts import render
 from django.views import generic
-import json
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 
-from .models import Book
+import json
 
+from .models import Book, BoardGame, Product, Author, Publisher
 
+# index
 def index(request):  # пока такой пустой не знаю что даже делать.
     return render(request, "app/index.html")
 
 
-class BookDetailView(generic.DetailView):
-    """Generic class-based detail view for a book."""
+# author
+class AuthorDetailView(generic.DetailView):
+    """Generic class-based detail view for a author."""
 
-    model = Book
+    model = Author
 
 
+# publisher
+class publisherDetailView(generic.DetailView):
+    """Generic class-based detail view for a publisher."""
+
+    model = Publisher
+
+
+# product
+class productsListView(generic.ListView):
+    """Generic class-based view for a list of products."""
+
+    model = Product
+    context_object_name = "products"
+    paginate_by = 10
+
+
+class ProductDetailView(generic.DetailView):
+    """Generic class-based detail view for a product."""
+
+    model = Product
+
+
+# board
+
+class BoardGameListView(generic.ListView):
+    """Generic class-based view for a list of board games."""
+
+    model = BoardGame
+    context_object_name = "boardgames"
+    paginate_by = 10
+    
+class BoardGameDetailView(generic.DetailView):
+    """Generic class-based detail view for a board game."""
+
+    model = BoardGame
+
+# book
 class BookListView(generic.ListView):
     """Generic class-based view for a list of books."""
 
     model = Book
     context_object_name = "books"
     paginate_by = 10
+
+
+class BookDetailView(generic.DetailView):
+    """Generic class-based detail view for a book."""
+
+    model = Book
 
 
 @csrf_exempt
