@@ -1,5 +1,17 @@
 from django.contrib import admin
-from .models import Category, Product, Book, BoardGame
+from .models import Category, Product, Book, BoardGame, Publisher, Author
+
+
+@admin.register(Publisher)
+class PublisherAdmin(admin.ModelAdmin):
+    list_display = ("name",)
+    search_fields = ("name",)
+
+
+@admin.register(Author)
+class AuthorAdmin(admin.ModelAdmin):
+    list_display = ("name",)
+    search_fields = ("name",)
 
 
 @admin.register(Category)
