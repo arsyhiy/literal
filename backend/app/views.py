@@ -7,6 +7,7 @@ import json
 
 from .models import Book, BoardGame, Product, Author, Publisher
 
+
 # index
 def index(request):  # пока такой пустой не знаю что даже делать.
     return render(request, "app/index.html")
@@ -43,17 +44,20 @@ class ProductDetailView(generic.DetailView):
 
 # board
 
+
 class BoardGameListView(generic.ListView):
     """Generic class-based view for a list of board games."""
 
     model = BoardGame
     context_object_name = "boardgames"
     paginate_by = 10
-    
+
+
 class BoardGameDetailView(generic.DetailView):
     """Generic class-based detail view for a board game."""
 
     model = BoardGame
+
 
 # book
 class BookListView(generic.ListView):

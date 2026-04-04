@@ -3,7 +3,7 @@ import uuid
 from django.db import models
 
 
-class author(models.Model):
+class Author(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255, null=False, blank=False)
     image = models.ImageField(null=True, blank=True, default="images/default.png")
@@ -12,7 +12,7 @@ class author(models.Model):
         return self.name
 
 
-class publisher(models.Model):
+class Publisher(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255, null=False, blank=False)
     image = models.ImageField(null=True, blank=True, default="images/default.png")
@@ -46,7 +46,7 @@ class Product(models.Model):
     yearOfPublication = models.IntegerField(null=False, blank=False)
     size = models.CharField(null=False, blank=False)
     manufacturer = models.ForeignKey(
-        publisher, on_delete=models.CASCADE, related_name="product"
+        Publisher, on_delete=models.CASCADE, related_name="product"
     )
 
     def __str__(self):
@@ -54,7 +54,7 @@ class Product(models.Model):
 
 
 class Book(Product):
-    author = models.ForeignKey(author, on_delete=models.CASCADE, related_name="author")
+    author = models.ForeignKey(Author, on_delete=models.CASCADE, related_name="author")
     isbn = models.CharField(max_length=20, null=False, blank=False)
 
     coverType = models.CharField(max_length=100, null=False, blank=False)

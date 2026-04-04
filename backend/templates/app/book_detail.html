@@ -12,106 +12,108 @@
       <a href="{% url 'catalog' %}" class="btn">Go to Book List</a>
 
       {% if user.is_authenticated %}
-        <form method="post" action="{% url 'logout' %}" style="display:inline;">
-          {% csrf_token %}
-          <button type="submit" class="btn">Logout</button>
-        </form>
+      <form method="post" action="{% url 'logout' %}" style="display: inline">
+        {% csrf_token %}
+        <button type="submit" class="btn">Logout</button>
+      </form>
       {% else %}
-        <a href="{% url 'login' %}" class="btn">Login</a>
+      <a href="{% url 'login' %}" class="btn">Login</a>
       {% endif %}
     </div>
 
-    <h1>{{ book.title }}</h1>
+    <h1>{{ book.name }}</h1>
     <h2>{{ book.author }}</h2>
-    <img src="{{ book.image.url }}" alt="{{ book.title }}">
+    <img src="{{ book.image.url }}" alt="{{ book.name }}" />
     <p>{{ book.details }}</p>
     <h3>{{ book.price }}</h3>
 
     <!-- <p><a href="{% url 'index' %}">Back to book list</a></p> -->
     <p><a href="{% url 'catalog' %}">Back to book list</a></p>
 
-<!-- Кнопка добавления этой книги в корзину -->
-<button onclick="addToCart('{{ book.pk }}', '{{ book.title }}', {{ book.price }})">
-    Add to Cart
-</button>
+    <!-- Кнопка добавления этой книги в корзину -->
+    <button
+      onclick="addToCart('{{ book.pk }}', '{{ book.title }}', {{ book.price }})"
+    >
+      Add to Cart
+    </button>
 
-<!-- Кнопка Checkout -->
-<button onclick="checkout()">Checkout (Cash)</button>
+    <!-- Кнопка Checkout -->
+    <button onclick="checkout()">Checkout (Cash)</button>
 
-<h2>Cart</h2>
-<div id="cart-container"></div>
+    <h2>Cart</h2>
+    <div id="cart-container"></div>
 
-<script>
-function getCart() {
-    return JSON.parse(localStorage.getItem('cart') || '{}');
-}
+    <script>
+      function getCart() {
+        return JSON.parse(localStorage.getItem("cart") || "{}");
+      }
 
-function saveCart(cart) {
-    localStorage.setItem('cart', JSON.stringify(cart));
-    renderCart();
-}
+      function saveCart(cart) {
+        localStorage.setItem("cart", JSON.stringify(cart));
+        renderCart();
+      }
 
-function addToCart(bookId, title, price) {
-    let cart = getCart();
-    if(cart[bookId]) {
-        cart[bookId].quantity += 1;
-    } else {
-        cart[bookId] = {title: title, price: price, quantity: 1};
-    }
-    saveCart(cart);
-    alert(`${title} added to cart`);
-}
+      function addToCart(bookId, title, price) {
+        let cart = getCart();
+        if (cart[bookId]) {
+          cart[bookId].quantity += 1;
+        } else {
+          cart[bookId] = { title: title, price: price, quantity: 1 };
+        }
+        saveCart(cart);
+        alert(`${title} added to cart`);
+      }
 
-function removeFromCart(bookId) {
-    let cart = getCart();
-    delete cart[bookId];
-    saveCart(cart);
-}
+      function removeFromCart(bookId) {
+        let cart = getCart();
+        delete cart[bookId];
+        saveCart(cart);
+      }
 
-function renderCart() {
-    const cart = getCart();
-    const container = document.getElementById('cart-container');
-    container.innerHTML = '';
-    for (let bookId in cart) {
-        const item = cart[bookId];
-        container.innerHTML += `
+      function renderCart() {
+        const cart = getCart();
+        const container = document.getElementById("cart-container");
+        container.innerHTML = "";
+        for (let bookId in cart) {
+          const item = cart[bookId];
+          container.innerHTML += `
             <div>
                 ${item.title} x ${item.quantity} — $${(item.price * item.quantity).toFixed(2)}
                 <button onclick="removeFromCart('${bookId}')">Remove</button>
             </div>`;
-    }
-}
-
-// --- Checkout stub ---
-function checkout() {
-    const cart = getCart();
-    if(Object.keys(cart).length === 0) {
-        alert('Cart is empty');
-        return;
-    }
-
-    fetch('/checkout/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': '{{ csrf_token }}'
-        },
-        body: JSON.stringify({cart, payment_method: 'cash'})
-    })
-    .then(res => res.json())
-    .then(data => {
-        if(data.status === 'ok') {
-            alert('Order received! Total: $' + data.total.toFixed(2));
-            localStorage.removeItem('cart');
-            renderCart();
-        } else {
-            alert('Error processing order');
         }
-    });
-}
+      }
 
-// Рендерим корзину при загрузке
-renderCart();
-</script>
+      // --- Checkout stub ---
+      function checkout() {
+        const cart = getCart();
+        if (Object.keys(cart).length === 0) {
+          alert("Cart is empty");
+          return;
+        }
+
+        fetch("/checkout/", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": "{{ csrf_token }}",
+          },
+          body: JSON.stringify({ cart, payment_method: "cash" }),
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.status === "ok") {
+              alert("Order received! Total: $" + data.total.toFixed(2));
+              localStorage.removeItem("cart");
+              renderCart();
+            } else {
+              alert("Error processing order");
+            }
+          });
+      }
+
+      // Рендерим корзину при загрузке
+      renderCart();
+    </script>
   </body>
 </html>

@@ -11,12 +11,12 @@
       <a href="{% url 'catalog' %}" class="btn">Go to Book List</a>
 
       {% if user.is_authenticated %}
-        <form method="post" action="{% url 'logout' %}" style="display:inline;">
-          {% csrf_token %}
-          <button type="submit" class="btn">Logout</button>
-        </form>
+      <form method="post" action="{% url 'logout' %}" style="display: inline">
+        {% csrf_token %}
+        <button type="submit" class="btn">Logout</button>
+      </form>
       {% else %}
-        <a href="{% url 'login' %}" class="btn">Login</a>
+      <a href="{% url 'login' %}" class="btn">Login</a>
       {% endif %}
     </div>
 
@@ -25,87 +25,86 @@
     {% for book in books %}
     <div>
       <h2>
-        <a href="{% url 'book-detail' book.pk %}">{{ book.title }}</a>
+        <a href="{% url 'book-detail' book.pk %}">{{ book.name }}</a>
       </h2>
     </div>
     {% empty %}
     <p>No books found</p>
     {% endfor %}
 
+    <h2>Cart</h2>
+    <div id="cart-container"></div>
+    <button onclick="checkout()">Checkout</button>
 
+    <script>
+      // --- Корзина на стороне клиента ---
+      function getCart() {
+        return JSON.parse(localStorage.getItem("cart") || "{}");
+      }
 
-<h2>Cart</h2>
-<div id="cart-container"></div>
-<button onclick="checkout()">Checkout</button>
+      function saveCart(cart) {
+        localStorage.setItem("cart", JSON.stringify(cart));
+        renderCart();
+      }
 
-<script>
-// --- Корзина на стороне клиента ---
-function getCart() {
-    return JSON.parse(localStorage.getItem('cart') || '{}');
-}
+      function addToCart(bookId, title, price) {
+        let cart = getCart();
+        if (cart[bookId]) {
+          cart[bookId].quantity += 1;
+        } else {
+          cart[bookId] = { title: title, price: price, quantity: 1 };
+        }
+        saveCart(cart);
+      }
 
-function saveCart(cart) {
-    localStorage.setItem('cart', JSON.stringify(cart));
-    renderCart();
-}
+      function removeFromCart(bookId) {
+        let cart = getCart();
+        delete cart[bookId];
+        saveCart(cart);
+      }
 
-function addToCart(bookId, title, price) {
-    let cart = getCart();
-    if(cart[bookId]) {
-        cart[bookId].quantity += 1;
-    } else {
-        cart[bookId] = {title: title, price: price, quantity: 1};
-    }
-    saveCart(cart);
-}
-
-function removeFromCart(bookId) {
-    let cart = getCart();
-    delete cart[bookId];
-    saveCart(cart);
-}
-
-function renderCart() {
-    const cart = getCart();
-    const container = document.getElementById('cart-container');
-    container.innerHTML = '';
-    for (let bookId in cart) {
-        const item = cart[bookId];
-        container.innerHTML += `
+      function renderCart() {
+        const cart = getCart();
+        const container = document.getElementById("cart-container");
+        container.innerHTML = "";
+        for (let bookId in cart) {
+          const item = cart[bookId];
+          container.innerHTML += `
             <div>
                 ${item.title} x ${item.quantity} — $${(item.price * item.quantity).toFixed(2)}
                 <button onclick="removeFromCart('${bookId}')">Remove</button>
             </div>`;
-    }
-}
+        }
+      }
 
-// --- Отправка корзины на сервер ---
-function checkout() {
-    const cart = getCart();
-    if(Object.keys(cart).length === 0) {
-        alert('Cart is empty');
-        return;
-    }
+      // --- Отправка корзины на сервер ---
+      function checkout() {
+        const cart = getCart();
+        if (Object.keys(cart).length === 0) {
+          alert("Cart is empty");
+          return;
+        }
 
-    fetch('/checkout/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': '{{ csrf_token }}'
-        },
-        body: JSON.stringify({cart})
-    }).then(res => res.json())
-      .then(data => {
-          if(data.status === 'ok') {
-              alert('Order received!');
-              localStorage.removeItem('cart');
+        fetch("/checkout/", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": "{{ csrf_token }}",
+          },
+          body: JSON.stringify({ cart }),
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.status === "ok") {
+              alert("Order received!");
+              localStorage.removeItem("cart");
               renderCart();
-          }
-      });
-}
+            }
+          });
+      }
 
-// --- Рендер корзины при загрузке страницы ---
-renderCart();
-</script>
+      // --- Рендер корзины при загрузке страницы ---
+      renderCart();
+    </script>
   </body>
 </html>
