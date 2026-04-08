@@ -1,5 +1,5 @@
 import uuid
-
+from django.utils import timezone
 from django.db import models
 
 
@@ -48,6 +48,8 @@ class Product(models.Model):
     manufacturer = models.ForeignKey(
         Publisher, on_delete=models.CASCADE, related_name="product"
     )
+    created_at = models.DateTimeField(default=timezone.now)
+    sold_count = models.IntegerField(default=0)
 
     def __str__(self):
         return self.name

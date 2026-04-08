@@ -4,4 +4,32 @@
 {% block content%}
 <h1>Hello! your on index page!!</h1>
 
+<h2>Новинки</h2>
+<div class="books">
+  {% for book in new_books %}
+    <div class="book">
+      <img src="{{ book.image.url }}" width="100">
+      <p>{{ book.name }}</p>
+      <p>${{ book.price }}</p>
+      <button onclick="addToCart('{{ book.id }}', '{{ book.name }}', '{{ book.price }}')">
+        В корзину
+      </button>
+    </div>
+  {% endfor %}
+</div>
+
+<h2>Популярные</h2>
+<div class="books">
+  {% for book in popular_books %}
+    <div class="book">
+      <img src="{{ book.image.url }}" width="100">
+      <p>{{ book.name }}</p>
+      <p>${{ book.price }}</p>
+      <button onclick="addToCart('{{ book.id }}', '{{ book.name }}', '{{ book.price }}')">
+        В корзину
+      </button>
+    </div>
+  {% endfor %}
+</div>
+
 {% endblock %}

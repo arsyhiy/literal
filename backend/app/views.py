@@ -8,9 +8,17 @@ import json
 from .models import Book, BoardGame, Product, Author, Publisher
 
 
-# index
-def index(request):  # пока такой пустой не знаю что даже делать.
-    return render(request, "app/index.html")
+def index(request):
+    new_books = Book.objects.all().order_by("-created_at")[:8]
+
+    popular_books = Book.objects.all().order_by("-sold_count")[:8]
+
+    context = {
+        "new_books": new_books,
+        "popular_books": popular_books,
+    }
+
+    return render(request, "app/index.html", context)
 
 
 # author
@@ -74,6 +82,7 @@ class BookDetailView(generic.DetailView):
     model = Book
 
 
+# NOTE: переделать на более безопасный вариант.
 @csrf_exempt
 def checkout(request):
     if request.method == "POST":
