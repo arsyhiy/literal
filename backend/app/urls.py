@@ -11,14 +11,15 @@ urlpatterns = [
         "", RedirectView.as_view(url="/index/", permanent=False)
     ),  # если нет ничего кроме http://127.0.0.1:8000 редирект к index
     path("index/", index, name="index"),  # что бы можно отсылать по названию
-    
 
 
     # book
-    # keep in mind that url would look like: http://127.0.0.1:8000/book/63070bff-3947-403c-b29b-adb68d624711/
+    # keep in mind that url would look like:
+    # http://127.0.0.1:8000/book/63070bff-3947-403c-b29b-adb68d624711/
     path("book/<uuid:pk>/", BookDetailView.as_view(), name="book-detail"),
     # catalog
-    path("catalog/", BookListView.as_view(), name="catalog"),  # список всех книг
+    path("catalog/", BookListView.as_view(),
+         name="catalog"),  # список всех книг
 
 
     # login/logout

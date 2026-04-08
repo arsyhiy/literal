@@ -1,0 +1,20 @@
+{% load static %}
+
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>{% block title %}Default title{% endblock %}</title>
+
+    <link rel="stylesheet" href="{% static 'app/style.css' %}" />
+  </head>
+  <body>
+    
+    {% block sidebar %}
+    {% include "app/includes/bar.html" %}
+    {% endblock %}
+    {% block content %}{% endblock %}
+
+    <script src="{% static 'app/script.js' %}"></script>
+  </body>
+</html>

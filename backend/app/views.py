@@ -89,7 +89,7 @@ def checkout(request):
                 quantity = item.get("quantity", 1)
                 total += book.price * quantity
                 order_items.append(
-                    {"title": book.title, "quantity": quantity, "price": book.price}
+                    {"name": book.name, "quantity": quantity, "price": book.price}
                 )
             except Book.DoesNotExist:
                 print(f"Book {book_id} not found")
@@ -100,7 +100,7 @@ def checkout(request):
         print(f"Payment method: {payment_method}")
         print("Items:")
         for it in order_items:
-            print(f"- {it['title']} x {it['quantity']} = ${it['price']*it['quantity']}")
+            print(f"- {it['name']} x {it['quantity']} = ${it['price']*it['quantity']}")
         print(f"Total: ${total:.2f}")
         print("================")
 
