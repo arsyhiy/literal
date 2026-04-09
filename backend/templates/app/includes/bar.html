@@ -1,23 +1,41 @@
 {% load static %}
 
-  <div class="header">
+<div class="header">
+  <!-- ЛЕВО -->
+  <div class="header-left">
     <a href="{% url 'index' %}" class="btn">home</a>
+
     <button id="catalog-btn" class="btn d-flex align-items-center gap-2">
       Каталог
       <i class="bi bi-chevron-down"></i>
     </button>
+  </div>
 
-        {% if user.is_authenticated %}
-    <form method="post" action="{% url 'logout' %}" style="display: inline">
-      {% csrf_token %}
-      <button type="submit" class="btn">Logout</button>
+  <!-- ЦЕНТР -->
+  <div class="header-center">
+    <form method="get" action="{% url 'search' %}" class="search-form">
+      <input type="text" name="q" placeholder="Поиск книг..." class="search-input">
+      <button type="submit" class="search-btn">🔍</button>
     </form>
+  </div>
+
+  <!-- ПРАВО -->
+  <div class="header-right">
+    {% if user.is_authenticated %}
+      <form method="post" action="{% url 'logout' %}">
+        {% csrf_token %}
+  <a href="{% url 'profile' %}" class="btn">Профиль</a>      </form>
     {% else %}
-    <a href="{% url 'login' %}" class="btn">Login</a>
+      <a href="{% url 'login' %}" class="btn">Login</a>
     {% endif %}
 
+    <a href="{% url 'favorites' %}" class="btn">❤️</a>
 
-    <button class="btn" onclick="checkout()">Checkout</button>
+  <a href="{% url 'orders' %}" class="btn">Заказы</a>
+  <a href="{% url 'cart' %}" class="btn">корзина</a>
+  </div>
+</div>
+
 
     <!-- Сам popup (на весь экран) -->
     <div id="catalog-popup" class="catalog-popup">

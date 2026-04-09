@@ -3,7 +3,17 @@ from django.views.generic import TemplateView, RedirectView
 from django.conf import settings
 from django.conf.urls.static import static
 
-from .views import BookDetailView, index, BookListView, checkout
+from .views import (
+    BookDetailView,
+    index,
+    BookListView,
+    checkout,
+    search,
+    favorites,
+    orders,
+    cart,
+    profile,
+)
 
 urlpatterns = [
     # home
@@ -26,6 +36,11 @@ urlpatterns = [
     ),
     # basket
     path("checkout/", checkout, name="checkout"),
+    path("search/", search, name="search"),
+    path("favorites/", favorites, name="favorites"),
+    path("orders/", orders, name="orders"),
+    path("cart/", cart, name="cart"),
+    path("profile/", profile, name="profile"),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

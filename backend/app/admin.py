@@ -1,5 +1,14 @@
 from django.contrib import admin
-from .models import Category, Product, Book, BoardGame, Publisher, Author
+from .models import (
+    Category,
+    Product,
+    Book,
+    BoardGame,
+    Publisher,
+    Author,
+    Order,
+    OrderItem,
+)
 
 
 @admin.register(Publisher)
@@ -39,3 +48,14 @@ class BoardGameAdmin(admin.ModelAdmin):
     list_display = ("name", "players", "timeOfPlaying", "category", "price")
     search_fields = ("name",)
     list_filter = ("category",)
+
+
+class OrderItemInline(admin.TabularInline):
+    model = OrderItem
+    extra = 0
+
+
+@admin.register(Order)
+class OrderAdmin(admin.ModelAdmin):
+    list_display = ("id", "status", "total", "created_at")
+    inlines = [OrderItemInline]

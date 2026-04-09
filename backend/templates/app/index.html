@@ -11,9 +11,14 @@
       <img src="{{ book.image.url }}" width="100">
       <p>{{ book.name }}</p>
       <p>${{ book.price }}</p>
-      <button onclick="addToCart('{{ book.id }}', '{{ book.name }}', '{{ book.price }}')">
-        В корзину
-      </button>
+<button 
+  class="add-cart-btn"
+  data-id="{{ book.id }}"
+  data-name="{{ book.name }}"
+  data-price="{{ book.price }}"
+>
+  В корзину
+</button>
     </div>
   {% endfor %}
 </div>
@@ -25,9 +30,14 @@
       <img src="{{ book.image.url }}" width="100">
       <p>{{ book.name }}</p>
       <p>${{ book.price }}</p>
-      <button onclick="addToCart('{{ book.id }}', '{{ book.name }}', '{{ book.price }}')">
-        В корзину
-      </button>
+<button 
+  class="add-cart-btn"
+  data-id="{{ book.id }}"
+  data-name="{{ book.name }}"
+  data-price="{{ book.price }}"
+>
+  В корзину
+</button>
     </div>
   {% endfor %}
 </div>

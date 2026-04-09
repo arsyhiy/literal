@@ -7,6 +7,16 @@
     <img src="{{ book.image.url }}" alt="{{ book.name }}" />
     <p>{{ book.details }}</p>
     <h3>{{ book.price }}</h3>
+    
+<button 
+  class="fav-btn"
+  data-id="{{ book.id }}"
+  data-name="{{ book.name }}"
+  data-price="{{ book.price }}"
+  data-image="{{ book.image.url }}"
+>
+  ❤️
+</button>
 
     <p><a class="btn" href="{% url 'catalog' %}">Back to book list</a></p>    
     

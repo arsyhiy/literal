@@ -1,11 +1,14 @@
 from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
 from django.views import generic
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
+from django.db.models import Q
+
 
 import json
 
-from .models import Book, BoardGame, Product, Author, Publisher
+from .models import Book, BoardGame, Product, Author, Publisher, Order, OrderItem
 
 
 def index(request):
@@ -82,38 +85,59 @@ class BookDetailView(generic.DetailView):
     model = Book
 
 
-# NOTE: переделать на более безопасный вариант.
-@csrf_exempt
 def checkout(request):
     if request.method == "POST":
         data = json.loads(request.body)
         cart = data.get("cart", {})
-        payment_method = data.get("payment_method", "unknown")
+
+        order = Order.objects.create(total=0)
+
         total = 0
-        order_items = []
 
         for book_id, item in cart.items():
-            try:
-                book = Book.objects.get(pk=book_id)
-                quantity = item.get("quantity", 1)
-                total += book.price * quantity
-                order_items.append(
-                    {"name": book.name, "quantity": quantity, "price": book.price}
-                )
-            except Book.DoesNotExist:
-                print(f"Book {book_id} not found")
-                continue
+            # ✅ приведение типов
+            quantity = int(item.get("quantity", 1))
+            price = int(item.get("price", 0))
 
-        # --- STUB: печатаем заказ и метод оплаты ---
-        print("=== New Order ===")
-        print(f"Payment method: {payment_method}")
-        print("Items:")
-        for it in order_items:
-            print(f"- {it['name']} x {it['quantity']} = ${it['price']*it['quantity']}")
-        print(f"Total: ${total:.2f}")
-        print("================")
+            total += price * quantity
 
-        # Возвращаем подтверждение клиенту
-        return JsonResponse({"status": "ok", "total": total, "items": order_items})
+            OrderItem.objects.create(
+                order=order,
+                product_name=item.get("title", ""),
+                price=price,
+                quantity=quantity,
+            )
 
-    return JsonResponse({"status": "error"}, status=400)
+        order.total = total
+        order.save()
+
+        return JsonResponse({"status": "ok"})
+
+
+def search(request):
+    query = request.GET.get("q", "")
+
+    results = (
+        Book.objects.filter(Q(name__icontains=query) | Q(author__name__icontains=query))
+        if query
+        else []
+    )
+
+    return render(request, "app/search.html", {"query": query, "results": results})
+
+
+def favorites(request):
+    return render(request, "app/favorites.html")
+
+
+def orders(request):
+    return render(request, "app/orders.html")
+
+
+def cart(request):
+    return render(request, "app/cart.html")
+
+
+@login_required
+def profile(request):
+    return render(request, "app/profile.html")
