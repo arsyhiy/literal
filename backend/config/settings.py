@@ -115,18 +115,17 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
-# Путь на файловой системе, где будут лежать статические файлы
 
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "static"),  # например, project/static/
+    os.path.join(BASE_DIR, "static"),
 ]
 
 STATIC_URL = "/static/"
 
+
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/"
-
-LOGOUT_REDIRECT_URL = "/accounts/logged_out/"  # путь должен существовать
+LOGOUT_REDIRECT_URL = "/accounts/logged_out/"
 
 
 MEDIA_URL = "/media/"

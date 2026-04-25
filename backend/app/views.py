@@ -85,25 +85,35 @@ class BookDetailView(generic.DetailView):
     model = Book
 
 
+@csrf_exempt
 def checkout(request):
     if request.method == "POST":
         data = json.loads(request.body)
         cart = data.get("cart", {})
 
-        order = Order.objects.create(total=0)
+        # создаём заказ
+        order = Order.objects.create(
+            user=request.user if request.user.is_authenticated else None
+        )
 
         total = 0
 
-        for book_id, item in cart.items():
-            # ✅ приведение типов
+        for product_id, item in cart.items():
+            try:
+                product = Product.objects.get(id=product_id)
+            except Product.DoesNotExist:
+                continue  # или можно вернуть ошибку
+
             quantity = int(item.get("quantity", 1))
-            price = int(item.get("price", 0))
+
+            # ❗ цену берём ТОЛЬКО с сервера
+            price = product.price
 
             total += price * quantity
 
             OrderItem.objects.create(
                 order=order,
-                product_name=item.get("title", ""),
+                product=product,
                 price=price,
                 quantity=quantity,
             )
@@ -111,7 +121,13 @@ def checkout(request):
         order.total = total
         order.save()
 
-        return JsonResponse({"status": "ok"})
+        return JsonResponse(
+            {
+                "status": "ok",
+                "order_id": str(order.id),
+                "total": str(order.total),
+            }
+        )
 
 
 def search(request):

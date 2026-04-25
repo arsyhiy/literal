@@ -1,112 +1,147 @@
+// Полноэкранный popup Каталог
+const catalogBtn = document.getElementById("catalog-btn");
+const catalogPopup = document.getElementById("catalog-popup");
+const closeBtn = document.getElementById("close-popup");
+const overlay = catalogPopup.querySelector(".popup-overlay");
 
-    // Полноэкранный popup Каталог
-    const catalogBtn = document.getElementById("catalog-btn");
-    const catalogPopup = document.getElementById("catalog-popup");
-    const closeBtn = document.getElementById("close-popup");
-    const overlay = catalogPopup.querySelector(".popup-overlay");
+function openPopup() {
+  catalogPopup.classList.add("show");
+  document.body.style.overflow = "hidden";
+}
 
-    function openPopup() {
-      catalogPopup.classList.add("show");
-      document.body.style.overflow = "hidden"; // блокируем скролл страницы
-    }
+function closePopup() {
+  catalogPopup.classList.remove("show");
+  document.body.style.overflow = "";
+}
 
-    function closePopup() {
-      catalogPopup.classList.remove("show");
-      document.body.style.overflow = ""; // возвращаем скролл
-    }
+catalogBtn.addEventListener("click", function (e) {
+  e.preventDefault();
+  openPopup();
+});
 
-    // Открытие по клику
-    catalogBtn.addEventListener("click", function (e) {
-      e.preventDefault();
-      openPopup();
-    });
+closeBtn.addEventListener("click", closePopup);
+overlay.addEventListener("click", closePopup);
 
-    // Закрытие
-    closeBtn.addEventListener("click", closePopup);
-    overlay.addEventListener("click", closePopup);
-
-    // Закрытие по Esc
-    document.addEventListener("keydown", function (e) {
-      if (e.key === "Escape" && catalogPopup.classList.contains("show")) {
-        closePopup();
-      }
-    });
+document.addEventListener("keydown", function (e) {
+  if (e.key === "Escape" && catalogPopup.classList.contains("show")) {
+    closePopup();
+  }
+});
 
 
+// ===================== 🛒 КОРЗИНА =====================
 
+// получить корзину
+function getCart() {
+  return JSON.parse(localStorage.getItem("cart") || "{}");
+}
 
-         // --- Корзина на стороне клиента ---
-      function getCart() {
-        return JSON.parse(localStorage.getItem("cart") || "{}");
-      }
+// сохранить корзину
+function saveCart(cart) {
+  localStorage.setItem("cart", JSON.stringify(cart));
+  renderCart();
+}
 
-      function saveCart(cart) {
-        localStorage.setItem("cart", JSON.stringify(cart));
-        renderCart();
-      }
+// ➕ добавить товар (БЕЗ цены!)
+function addToCart(productId, name) {
+  let cart = getCart();
 
-      function addToCart(bookId, name, price) {
-        let cart = getCart();
-        if (cart[bookId]) {
-          cart[bookId].quantity += 1;
-        } else {
-          cart[bookId] = { name: name, price: price, quantity: 1 };
-        }
-        saveCart(cart);
-      }
+  if (cart[productId]) {
+    cart[productId].quantity += 1;
+  } else {
+    cart[productId] = {
+      name: name,
+      quantity: 1,
+    };
+  }
 
-      function removeFromCart(bookId) {
-        let cart = getCart();
-        delete cart[bookId];
-        saveCart(cart);
-      }
+  saveCart(cart);
+}
 
+// ❌ удалить товар
+function removeFromCart(productId) {
+  let cart = getCart();
+  delete cart[productId];
+  saveCart(cart);
+}
+
+// 🎨 отрисовка корзины
 function renderCart() {
   const cart = getCart();
   const container = document.getElementById("cart-container");
 
-  if (!container) return; // 👈 ВАЖНО
+  if (!container) return;
 
   container.innerHTML = "";
 
-  for (let bookId in cart) {
-    const item = cart[bookId];
+  for (let productId in cart) {
+    const item = cart[productId];
+
     container.innerHTML += `
       <div>
-        ${item.title} x ${item.quantity}
+        ${item.name} x ${item.quantity}
+        <button onclick="removeFromCart('${productId}')">❌</button>
       </div>
     `;
   }
 }
 
-      // --- Отправка корзины на сервер ---
-      function checkout() {
-        const cart = getCart();
-        if (Object.keys(cart).length === 0) {
-          alert("Cart is empty");
-          return;
-        }
+// 🔐 CSRF
+function getCSRFToken() {
+  return document.cookie
+    .split("; ")
+    .find(row => row.startsWith("csrftoken="))
+    ?.split("=")[1];
+}
 
-        fetch("/checkout/", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-CSRFToken": "{{ csrf_token }}",
-          },
-          body: JSON.stringify({ cart }),
-        })
-          .then((res) => res.json())
-          .then((data) => {
-            if (data.status === "ok") {
-              alert("Order received!");
-              localStorage.removeItem("cart");
-              renderCart();
-            }
-          });
+// 🚀 checkout (ОДНА версия, без дублей)
+function checkout() {
+  const cart = getCart();
+
+  if (!cart || Object.keys(cart).length === 0) {
+    alert("Корзина пуста");
+    return;
+  }
+
+  fetch("/checkout/", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-CSRFToken": getCSRFToken(),
+    },
+    body: JSON.stringify({ cart }),
+  })
+    .then(res => {
+      if (!res.ok) throw new Error("Ошибка запроса");
+      return res.json();
+    })
+    .then(data => {
+      if (data.status === "ok") {
+        localStorage.removeItem("cart");
+        renderCart();
+        alert("Заказ оформлен!");
+        window.location.href = "/orders/";
+      } else {
+        alert("Ошибка оформления заказа");
       }
+    })
+    .catch(err => {
+      console.error("Checkout error:", err);
+      alert("Что-то пошло не так");
+    });
+}
 
-      // --- Рендер корзины при загрузке страницы ---
-      renderCart();
+// клик по checkout
+document.addEventListener("click", function (e) {
+  const btn = e.target.closest(".checkout-btn");
+  if (btn) checkout();
+});
+
+// отрисовать корзину при загрузке
+renderCart();
+
+
+// ===================== ❤️ ИЗБРАННОЕ =====================
 
 function getFavorites() {
   return JSON.parse(localStorage.getItem("favorites") || "[]");
@@ -128,7 +163,7 @@ function toggleFavorite(book) {
   }
 
   saveFavorites(favs);
-  renderFavoritesPage(); // 👈 обновляем страницу
+  renderFavoritesPage();
 }
 
 function renderFavoritesPage() {
@@ -148,7 +183,8 @@ function renderFavoritesPage() {
   emptyMsg.style.display = "none";
 
   favs.forEach(book => {
-      if (!book.name || !book.price) return; // 👈 защита
+    if (!book.name || !book.price) return;
+
     container.innerHTML += `
       <div class="book">
         <img src="${book.image}">
@@ -157,8 +193,7 @@ function renderFavoritesPage() {
 
         <button class="add-cart-btn"
           data-id="${book.id}"
-          data-name="${book.name}"
-          data-price="${book.price}">
+          data-name="${book.name}">
           В корзину
         </button>
 
@@ -175,23 +210,29 @@ function isFavorite(bookId) {
   return getFavorites().some(b => b.id === bookId);
 }
 
+function removeFavorite(bookId) {
+  let favs = getFavorites();
+  favs = favs.filter(b => b.id !== bookId);
+  saveFavorites(favs);
+  renderFavoritesPage();
+}
+
+
+// ===================== EVENTS =====================
+
 document.addEventListener("DOMContentLoaded", function () {
   renderFavoritesPage();
 
   document.addEventListener("click", function (e) {
-    // удалить из избранного
     if (e.target.classList.contains("remove-fav-btn")) {
-      const id = e.target.dataset.id;
-      toggleFavorite({ id });
+      removeFavorite(e.target.dataset.id);
     }
 
-    // добавить в корзину
     if (e.target.classList.contains("add-cart-btn")) {
       const btn = e.target;
-      addToCart(btn.dataset.id, btn.dataset.name, Number(btn.dataset.price));
+      addToCart(btn.dataset.id, btn.dataset.name);
     }
 
-    // ❤️ кнопка (на других страницах)
     if (e.target.classList.contains("fav-btn")) {
       const btn = e.target;
 
@@ -203,114 +244,14 @@ document.addEventListener("DOMContentLoaded", function () {
       };
 
       toggleFavorite(book);
-
-      // меняем цвет
       btn.style.color = isFavorite(book.id) ? "red" : "gray";
     }
   });
 
-  // покрасить сердечки при загрузке
   document.querySelectorAll(".fav-btn").forEach(btn => {
     const id = btn.dataset.id;
     if (isFavorite(id)) {
       btn.style.color = "red";
     }
   });
-});
-
-
-function removeFavorite(bookId) {
-  let favs = getFavorites();
-  favs = favs.filter(b => b.id !== bookId);
-  saveFavorites(favs);
-  renderFavoritesPage();
-}
-
-
-document.addEventListener("click", function (e) {
-  if (e.target.classList.contains("remove-fav-btn")) {
-    const id = e.target.dataset.id;
-    removeFavorite(id);
-  }
-});
-
-
-document.addEventListener("click", function (e) {
-  const btn = e.target.closest(".add-cart-btn");
-
-  if (btn) {
-    addToCart(
-      btn.dataset.id,
-      btn.dataset.name,
-      Number(btn.dataset.price)
-    );
-  }
-});
-
-function getCSRFToken() {
-  return document.cookie
-    .split("; ")
-    .find(row => row.startsWith("csrftoken="))
-    ?.split("=")[1];
-}
-
-function checkout() {
-  const cart = getCart();
-
-  // 🔒 защита от пустой корзины
-  if (!cart || Object.keys(cart).length === 0) {
-    alert("Корзина пуста");
-    return;
-  }
-
-  // 🧪 дебаг (можешь потом убрать)
-  console.log("CHECKOUT:", cart);
-
-  fetch("/checkout/", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "X-CSRFToken": getCSRFToken(),
-    },
-    body: JSON.stringify({ cart }),
-  })
-    .then(res => {
-      if (!res.ok) {
-        throw new Error("Ошибка запроса");
-      }
-      return res.json();
-    })
-    .then(data => {
-      if (data.status === "ok") {
-        // ✅ очищаем корзину
-        localStorage.removeItem("cart");
-
-        // 🔄 обновляем UI (если есть)
-        if (typeof renderCart === "function") {
-          renderCart();
-        }
-
-        // 💬 сообщение
-        alert("Заказ оформлен!");
-
-        // 🚀 редирект (опционально)
-        window.location.href = "/orders/";
-      } else {
-        alert("Ошибка оформления заказа");
-      }
-    })
-    .catch(err => {
-      console.error("Checkout error:", err);
-      alert("Что-то пошло не так");
-    });
-}
-
-
-document.addEventListener("click", function (e) {
-  const btn = e.target.closest(".checkout-btn");
-
-  if (btn) {
-    console.log("CLICKED CHECKOUT"); // 👈
-    checkout();
-  }
 });

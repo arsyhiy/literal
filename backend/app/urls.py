@@ -16,25 +16,16 @@ from .views import (
 )
 
 urlpatterns = [
-    # home
-    path(
-        "", RedirectView.as_view(url="/index/", permanent=False)
-    ),  # если нет ничего кроме http://127.0.0.1:8000 редирект к index
-    path("index/", index, name="index"),  # что бы можно отсылать по названию
-    # book
-    # keep in mind that url would look like:
-    # http://127.0.0.1:8000/book/63070bff-3947-403c-b29b-adb68d624711/
+    path("", RedirectView.as_view(url="/index/", permanent=False)),
+    path("index/", index, name="index"),
     path("book/<uuid:pk>/", BookDetailView.as_view(), name="book-detail"),
-    # catalog
-    path("catalog/", BookListView.as_view(), name="catalog"),  # список всех книг
-    # login/logout
+    path("catalog/", BookListView.as_view(), name="catalog"),
     path("accounts/", include("django.contrib.auth.urls")),
     path(
         "accounts/logged_out/",
         TemplateView.as_view(template_name="registration/logged_out.html"),
         name="logged_out",
     ),
-    # basket
     path("checkout/", checkout, name="checkout"),
     path("search/", search, name="search"),
     path("favorites/", favorites, name="favorites"),

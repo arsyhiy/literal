@@ -71,24 +71,53 @@ class BoardGame(Product):
 
 
 class Order(models.Model):
-    STATUS_CHOICES = [
-        ("new", "Новый"),
-        ("processing", "В обработке"),
-        ("shipped", "Отправлен"),
-        ("done", "Завершён"),
-    ]
+    class Status(models.TextChoices):
+        NEW = "new", "Новый"
+        PROCESSING = "processing", "В обработке"
+        SHIPPED = "shipped", "Отправлен"
+        DONE = "done", "Завершён"
+        CANCELED = "canceled", "Отменён"
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
-    total = models.DecimalField(max_digits=10, decimal_places=2)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="new")
-    created_at = models.DateTimeField(auto_now_add=True)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+
+    user = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, blank=True, related_name="orders"
+    )
+
+    status = models.CharField(max_length=20, choices=Status.choices, default=Status.NEW)
+
+    total = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def update_total(self):
+        self.total = sum(item.get_total_price() for item in self.items.all())
+        self.save()
 
     def __str__(self):
-        return f"Order {self.id}"
+        return f"Order {self.id} ({self.status})"
 
 
 class OrderItem(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="items")
-    product_name = models.CharField(max_length=255)
-    price = models.IntegerField()
-    quantity = models.IntegerField()
+
+    product = models.ForeignKey(
+        Product, on_delete=models.CASCADE, related_name="order_items"
+    )
+
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    quantity = models.PositiveIntegerField(default=1)
+
+    def get_total_price(self):
+        return self.price * self.quantity
+
+    def save(self, *args, **kwargs):
+        if not self.price:
+            self.price = self.product.price
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.product.name} x {self.quantity}"
