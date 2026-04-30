@@ -51,11 +51,10 @@ class BoardGameAdmin(admin.ModelAdmin):
     list_filter = ("category",)
 
 
-class OrderItemInline(admin.TabularInline):
-    model = OrderItem
-    extra = 0
-    autocomplete_fields = ["product"]
-    readonly_fields = ["price"]
+@admin.register(OrderItem)
+class OrderItemInline(admin.ModelAdmin):
+    list_display = ("product", "price")
+    search_fields = ("product",)
 
 
 @admin.register(Order)
@@ -63,14 +62,3 @@ class OrderAdmin(admin.ModelAdmin):
     list_display = ("id", "user", "status", "total", "created_at")
     list_filter = ("status", "created_at")
     search_fields = ("id", "user__username")
-    ordering = ("-created_at",)
-
-    inlines = [OrderItemInline]
-
-    readonly_fields = ("total", "created_at", "updated_at")
-
-    fieldsets = (
-        ("Основное", {"fields": ("user", "status")}),
-        ("Финансы", {"fields": ("total",)}),
-        ("Даты", {"fields": ("created_at", "updated_at")}),
-    )
