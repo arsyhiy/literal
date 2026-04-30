@@ -112,9 +112,13 @@ class OrderItem(models.Model):
     quantity = models.PositiveIntegerField(default=1)
 
     def get_total_price(self):
+        if self.price is None:
+            return 0
+
         return self.price * self.quantity
 
     def save(self, *args, **kwargs):
+        # автоматически сохраняем цену продукта на момент заказа
         if not self.price:
             self.price = self.product.price
         super().save(*args, **kwargs)
