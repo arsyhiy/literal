@@ -85,6 +85,7 @@ class BookDetailView(generic.DetailView):
     model = Book
 
 
+# rewite that
 @csrf_exempt
 def checkout(request):
     if request.method == "POST":
