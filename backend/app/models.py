@@ -33,6 +33,8 @@ class Category(models.Model):
 
 
 class Product(models.Model):
+    """base class Product"""
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255, blank=False, null=False)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
