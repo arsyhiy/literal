@@ -54,8 +54,6 @@ class ProductDetailView(generic.DetailView):
 
 
 # board
-
-
 class BoardGameListView(generic.ListView):
     """Generic class-based view for a list of board games."""
 

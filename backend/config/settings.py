@@ -77,7 +77,7 @@ WSGI_APPLICATION = "config.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR /"db"/ "db.sqlite3",
+        "NAME": BASE_DIR / "db" / "db.sqlite3",
     }
 }
 
@@ -129,4 +129,4 @@ LOGOUT_REDIRECT_URL = "/accounts/logged_out/"
 
 
 MEDIA_URL = "media/"
-MEDIA_ROOT = BASE_DIR /"db"/ "media"
+MEDIA_ROOT = BASE_DIR / "db" / "media"
