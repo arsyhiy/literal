@@ -120,7 +120,6 @@ class OrderItem(models.Model):
         return self.price * self.quantity
 
     def save(self, *args, **kwargs):
-        # автоматически сохраняем цену продукта на момент заказа
         if not self.price:
             self.price = self.product.price
         super().save(*args, **kwargs)

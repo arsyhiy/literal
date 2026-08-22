@@ -1,4 +1,3 @@
-// Полноэкранный popup Каталог
 const catalogBtn = document.getElementById("catalog-btn");
 const catalogPopup = document.getElementById("catalog-popup");
 const closeBtn = document.getElementById("close-popup");
@@ -29,20 +28,15 @@ document.addEventListener("keydown", function (e) {
 });
 
 
-// ===================== 🛒 КОРЗИНА =====================
-
-// получить корзину
 function getCart() {
   return JSON.parse(localStorage.getItem("cart") || "{}");
 }
 
-// сохранить корзину
 function saveCart(cart) {
   localStorage.setItem("cart", JSON.stringify(cart));
   renderCart();
 }
 
-// ➕ добавить товар (БЕЗ цены!)
 function addToCart(productId, name) {
   let cart = getCart();
 
@@ -58,14 +52,12 @@ function addToCart(productId, name) {
   saveCart(cart);
 }
 
-// ❌ удалить товар
 function removeFromCart(productId) {
   let cart = getCart();
   delete cart[productId];
   saveCart(cart);
 }
 
-// 🎨 отрисовка корзины
 function renderCart() {
   const cart = getCart();
   const container = document.getElementById("cart-container");
@@ -86,7 +78,6 @@ function renderCart() {
   }
 }
 
-// 🔐 CSRF
 function getCSRFToken() {
   return document.cookie
     .split("; ")
@@ -94,7 +85,6 @@ function getCSRFToken() {
     ?.split("=")[1];
 }
 
-// 🚀 checkout (ОДНА версия, без дублей)
 function checkout() {
   const cart = getCart();
 
@@ -131,17 +121,14 @@ function checkout() {
     });
 }
 
-// клик по checkout
 document.addEventListener("click", function (e) {
   const btn = e.target.closest(".checkout-btn");
   if (btn) checkout();
 });
 
-// отрисовать корзину при загрузке
 renderCart();
 
 
-// ===================== ❤️ ИЗБРАННОЕ =====================
 
 function getFavorites() {
   return JSON.parse(localStorage.getItem("favorites") || "[]");
@@ -217,8 +204,6 @@ function removeFavorite(bookId) {
   renderFavoritesPage();
 }
 
-
-// ===================== EVENTS =====================
 
 document.addEventListener("DOMContentLoaded", function () {
   renderFavoritesPage();
